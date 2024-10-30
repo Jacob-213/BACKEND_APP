@@ -65,11 +65,32 @@ async function borrarUsuario(id){
     return usuarioBorrado;
 }
 
+async function editarUsuario(id, data) {
+    var usuarioExistente = await buscarPorID(id);
+    if (!usuarioExistente) {
+        return false;
+    }
+    if (data.password) {
+        const { salt, hash } = encriptarPassword(data.password);
+        data.password = hash;
+        data.salt = salt;
+    }
+    const usuarioActualizado = {
+        nombre: data.nombre || usuarioExistente.nombre,
+        usuario: data.usuario || usuarioExistente.usuario,
+        password: data.password || usuarioExistente.password,
+        salt: data.salt || usuarioExistente.salt,
+    };
+    await usuariosBD.doc(id).update(usuarioActualizado);
+    return true;
+}
+
 
 module.exports={
     mostrarUsuarios,
     nuevoUsuario,
     borrarUsuario,
     buscarPorID,
+    editarUsuario
 }
 
